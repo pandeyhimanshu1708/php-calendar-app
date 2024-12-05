@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHP Full Calendar with TinyMCE</title>
+    <title>Responsive Calendar with TinyMCE</title>
 
     <!-- Include TinyMCE -->
     <script src="https://cdn.tiny.cloud/1/gg63dftxs904yq8t5rs5qyu8xo1wnzpfo1rflntk3u6ic37t/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
@@ -15,10 +15,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Open modal and initialize TinyMCE
             document.querySelectorAll('.calendar-day').forEach(day => {
-                day.addEventListener('click', function () {
+                day.addEventListener('click', function() {
                     const selectedDate = this.getAttribute('data-date');
                     document.getElementById('selected-date').textContent = selectedDate;
-                    document.getElementById('modal').style.display = 'block';
+                    document.getElementById('modal').style.display = 'flex';
 
                     tinymce.init({
                         selector: '#editor',
@@ -45,7 +45,10 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ date, content }),
+                    body: JSON.stringify({
+                        date,
+                        content
+                    }),
                 });
 
                 if (response.ok) {
@@ -73,15 +76,17 @@
             margin: 0;
             padding: 0;
             background: #f4f4f9;
+            color: #333;
         }
 
         #calendar-container {
             max-width: 900px;
-            margin: 50px auto;
+            margin: 30px auto;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            overflow: hidden;
         }
 
         #calendar-header {
@@ -89,16 +94,18 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .nav-btn {
             cursor: pointer;
-            padding: 5px 15px;
-            border: 1px solid #ccc;
+            padding: 8px 20px;
+            border: none;
             background: #007bff;
             color: white;
             border-radius: 5px;
             font-size: 14px;
+            transition: background 0.3s ease;
         }
 
         .nav-btn:hover {
@@ -120,13 +127,14 @@
         }
 
         .calendar-day {
-            padding: 20px;
+            padding: 15px;
             border: 1px solid #ddd;
             text-align: center;
             background: #f9f9f9;
             cursor: pointer;
             position: relative;
             border-radius: 5px;
+            transition: background 0.3s ease;
         }
 
         .calendar-day:hover {
@@ -146,17 +154,23 @@
         .modal {
             display: none;
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
 
         .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
             position: relative;
         }
 
@@ -166,15 +180,22 @@
             right: 10px;
             cursor: pointer;
             font-size: 20px;
+            color: #999;
+        }
+
+        #close-modal:hover {
+            color: #333;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            overflow-x: auto;
         }
 
-        table th, table td {
+        table th,
+        table td {
             padding: 10px;
             border: 1px solid #ddd;
             text-align: left;
@@ -187,6 +208,20 @@
 
         table td {
             background: #f9f9f9;
+        }
+
+        @media (max-width: 768px) {
+            #calendar {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .calendar-day {
+                padding: 10px;
+            }
+
+            .nav-btn {
+                margin: 5px 0;
+            }
         }
     </style>
 </head>
