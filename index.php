@@ -141,6 +141,10 @@
             background: #e0e0e0;
         }
 
+        .calendar-day.highlight {
+            background: #ffd700;
+        }
+
         .event-indicator {
             position: absolute;
             bottom: 5px;
@@ -212,7 +216,7 @@
 
         @media (max-width: 768px) {
             #calendar {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .calendar-day {
@@ -221,6 +225,20 @@
 
             .nav-btn {
                 margin: 5px 0;
+            }
+
+            table th,
+            table td {
+                padding: 5px;
+                font-size: 12px;
+            }
+
+            #calendar-container {
+                padding: 10px;
+            }
+
+            .modal-content {
+                max-width: 90%;
             }
         }
     </style>
@@ -241,6 +259,7 @@
 
     $events = $conn->query("SELECT event_date FROM events")->fetch_all(MYSQLI_ASSOC);
     $eventDates = array_column($events, 'event_date');
+    $currentDate = date('Y-m-d');
     ?>
 
     <div id="calendar-container">
@@ -265,43 +284,47 @@
 
             // Days with events
             for ($day = 1; $day <= $daysInMonth; $day++) {
-                $date = "$year-$month-" . str_pad($day, 2, '0', STR_PAD_LEFT);
-                $hasEvent = in_array($date, $eventDates) ? "<div class='event-indicator'></div>" : "";
-                echo "<div class='calendar-day' data-date='$date'>$day $hasEvent</div>";
+                $date = "$year-$month-" .str_pad($day, 2, '0', STR_PAD_LEFT);
+                $isToday = $date === $currentDate;
+                $hasEvent = in_array($date, $eventDates);
+                $highlightClass = $isToday ? 'highlight' : '';
+                $eventIndicator = $hasEvent ? '<span class="event-indicator"></span>' : '';
+
+                echo "<div class='calendar-day $highlightClass' data-date='$date'>$day $eventIndicator</div>";
             }
             ?>
         </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Event</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $events = $conn->query("SELECT event_date, content FROM events");
+                while ($row = $events->fetch_assoc()) {
+                    echo "<tr>
+                            <td>{$row['event_date']}</td>
+                            <td>{$row['content']}</td>
+                          </tr>";
+                }
+                ?>
+            </tbody>
+        </table>
     </div>
 
-    <!-- Modal -->
-    <div id="modal" class="modal">
+    <div class="modal" id="modal">
         <div class="modal-content">
             <span id="close-modal">&times;</span>
-            <h2>Add Event for <span id="selected-date"></span></h2>
+            <h2 id="selected-date"></h2>
             <textarea id="editor"></textarea>
-            <button id="save-btn">Save</button>
+            <button id="save-btn">Save Event</button>
         </div>
-    </div>
-
-    <!-- Display Events -->
-    <div id="event-list">
-        <h2>Event List</h2>
-        <table>
-            <tr>
-                <th>Date</th>
-                <th>Event</th>
-            </tr>
-            <?php
-            $result = $conn->query("SELECT * FROM events ORDER BY event_date ASC");
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>
-                        <td>{$row['event_date']}</td>
-                        <td>{$row['content']}</td>
-                      </tr>";
-            }
-            ?>
-        </table>
     </div>
 </body>
 
 </html>
+
